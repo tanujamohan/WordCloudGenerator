@@ -1,0 +1,160 @@
+<!doctype html>
+
+<html>
+
+<header>
+	<title>Lyric Page</title>
+
+	<style>
+		body {
+			background-color: #BDBDBD;
+		}
+		h1 {
+			display: inline;
+			text-align: center;
+			font-size: 40pt;
+			margin: auto;
+			margin-left: 15%;
+		}
+		.button {
+		    background-color: #5E0B82;
+		    border: none;
+		    color: white;
+		    padding: 12px 28px;
+		    text-align: center;
+		    text-decoration: none;
+		    font-size: 16px;
+		    margin: 4px 2px;
+		    cursor: pointer;
+		    margin-top: 25px;
+		    margin-right: 5px;
+		    margin-left: 50px;
+		    margin-top: 2%;
+		}
+		.songlist {
+			margin-left: 20%;
+			font-size: 24pt;
+		}
+		li {
+			padding: 4px;
+		}
+		.lyrics {
+			text-align: center;
+			font-size: 14pt;
+			margin-left: 30%;
+			margin-right: 30%;
+		}
+		.highlight{
+            background-color:yellow;
+        }
+	</style>
+
+</header>
+
+<body onload="doSearch('baby')">
+	<button class="button">Back to Word<br> Cloud Page</button> <br>
+	<button class="button">Back to Song<br> List Page</button>
+	<script>
+		function doSearch(text) {
+	       // get pattern
+	       var re = new RegExp(" " + text,"g");
+
+	       // get string
+	       var searchString = document.getElementById("song").innerHTML.toString();
+
+	       var matchArray;
+	       var resultString = "";
+	       var first=0; var last=0;
+
+	       // find each match
+	       while((matchArray = re.exec(searchString)) != null) {
+	         	last = matchArray.index;
+	         	// get all of string up to match, concatenate
+	         	resultString += searchString.substring(first, last);
+
+	         	// add matched, with class
+	         	resultString += "<span class='highlight'>" + matchArray[0] + "</span>";
+	         	first = re.lastIndex;
+	       }
+
+	       // finish off string
+	       resultString += searchString.substring(first,searchString.length);
+
+	       // insert into page
+	       document.getElementById("song").innerHTML = resultString;
+	       console.log("here");
+	    }
+	</script>
+	<h1> Song Title by Artist </h1>
+	<p class="lyrics" id="song"> Oh whoa [x3]<br>
+            You know you love me, I know you care <br>
+            Just shout whenever, and I'll be there<br>
+            You are my love, you are my heart<br>
+            And we would never ever ever be apart<br>
+            <br>
+            Are we an item? Girl, quit playing<br>
+            We're just friends, what are you saying?<br>
+            Say there's another and look right in my eyes<br>
+            My first love broke my heart for the first time<br>
+            And I was like...<br>
+			<br>
+            Baby, baby, baby oooh<br>
+            Like baby, baby, baby nooo<br>
+            Like baby, baby, baby oooh<br>
+            I thought you'd always be mine (mine)<br>
+            <br>
+            Baby, baby, baby oooh<br>
+            Like baby, baby, baby nooo<br>
+            Like baby, baby, baby oooh<br>
+            I thought you'd always be mine (mine)<br>
+            <br>
+            Oh, for you I would have done whatever<br>
+            And I just can't believe we ain't together<br>
+            And I wanna play it cool, but I'm losin' you<br>
+            I'll buy you anything, I'll buy you any ring<br>
+            And I'm in pieces, baby fix me<br>
+            And just shake me 'til you wake me from this bad dream<br>
+            I'm going down, down, down, down<br>
+            And I just can't believe my first love won't be around<br>
+            <br>
+            And I'm like<br>
+            Baby, baby, baby oooh<br>
+            Like baby, baby, baby nooo<br>
+            Like baby, baby, baby oooh<br>
+            I thought you'd always be mine (mine)<br>
+            <br>
+            Baby, baby, baby oooh<br>
+            Like baby, baby, baby nooo<br>
+            Like baby, baby, baby oooh<br>
+            I thought you'd always be mine (mine)<br>
+            <br>
+            [Ludacris:]<br>
+            Luda! When I was 13, I had my first love,<br>
+            There was nobody that compared to my baby<br>
+            And nobody came between us or could ever come above<br>
+            She had me going crazy, oh, I was star-struck,<br>
+            She woke me up daily, don't need no Starbucks.<br>
+            She made my heart pound, it skipped a beat when I see her in the street and<br>
+            At school on the playground but I really wanna see her on the weekend.<br>
+            She knows she got me dazing cause she was so amazing<br>
+            And now my heart is breaking but I just keep on saying...<br>
+            <br>
+            Baby, baby, baby oooh<br>
+            Like baby, baby, baby nooo<br>
+            Like baby, baby, baby oooh<br>
+            I thought you'd always be mine (mine)<br>
+            <br>
+            Baby, baby, baby oooh<br>
+            Like baby, baby, baby nooo<br>
+            Like baby, baby, baby oooh<br>
+            I thought you'd always be mine (mine)<br>
+            <br>
+            I'm gone (Yeah Yeah Yeah, Yeah Yeah Yeah)<br>
+            Now I'm all gone (Yeah Yeah Yeah, Yeah Yeah Yeah)<br>
+            Now I'm all gone (Yeah Yeah Yeah, Yeah Yeah Yeah)<br>
+            Now I'm all gone (gone, gone, gone...)<br>
+            I'm gone<br><br>
+	<br><br>
+	</p>
+</body>
+</html>
