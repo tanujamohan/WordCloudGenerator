@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<p>Click the button to display the array values after the split.</p>
+
+<button onclick=myFunction()>Try it</button>
+ 
+<p id="demo 1"></p>
+<p id="demo 2"></p>
+
+<script>
+
+//ARR STORES THE FINAL ARRAY SORTED IN ASCENDING ORDER OF FREQUENCY OF WORDS CHOOSE THE LAST 250 WORDS IN THIS ARRAY
+
+
+function myFunction() {
+    var str = "Do you ever feel like a plastic bag Drifting through the wind Wanting to start again Do you ever feel so paper thin Like a house of cards One blow from caving in Do you ever feel already buried deep Six feet under screams. But no one seems to hear a thing Do you know that there's still a chance for you Cause there's a spark in you You just gotta ignite the light And let it shine Just own the night ;Like the fourth of July Cause baby you're a firework and";
+
+   // var str = "a the good good, bad; the can't the a. book and the book chair good";
+    var n = str.toLowerCase() ;
+    var n1 = n.replace(/,/g, "");
+    var n2  = n1.replace(/;/g, "");
+    var n3 = n2.replace(/\./g,"");
+    var n4 =  n3.replace(/'/g, "");
+    var n5 = n4.replace(/ the /g, " ");
+    var n6 = n5.replace(/ a /g, " ");
+    var n7 = n6.replace(/ an /g, " ");
+    var n8 = n7.replace(/ of /g, " ");
+    var n9 = n8.replace(/ to /g, " ");
+    var n10 = n9.replace(/ in /g, " ");
+    var n11 = n10.replace(/ so /g, " ");
+    console.log("after removing the commas " + n11);
+    var res = n11.split(" ");
+    var a = foo(res);
+    console.log("string before sorting: " + str);
+    var numbers = a[1];
+	var arr = mySortFunction(a); //sorts in increasing order of the number frequencies
+	console.log("sorted array" + arr);
+}
+
+
+function mySortFunction(arr) {
+ 	arr.sort(function(a,b) {
+ 		return a[1] - b[1];
+	 });
+    
+    return arr;
+}
+
+
+function foo(arr) {
+    var a = [], b = [], prev;
+    var sortedArray = [[],[]];
+    
+
+    arr.sort();
+    for ( var i = 0; i < arr.length; i++ ) {
+        if ( arr[i] !== prev ) {
+            a.push(arr[i]);
+            b.push(1);
+        } else {
+            b[b.length-1]++;
+        }
+        prev = arr[i];
+    }
+
+    for(var i = 0 ; i < a.length ; i++){
+    	sortedArray[i] = [a[i], b[i]];
+
+    }
+    return sortedArray;
+}
+
+</script>
+
+</body>
+</html>
