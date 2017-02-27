@@ -1,0 +1,541 @@
+<!doctype html>
+
+<html>
+
+<head>
+	<title>Search Page</title>
+	<style>
+		body {
+			background-color: #BDBDBD;
+			text-align: center;
+			color: black;
+		}
+		.header1 {
+			color: black;
+			font-size: 50pt;
+			display: block;
+			width: 100%;
+			margin: 0 auto;
+			margin-top: 12%;
+		}
+		.searchbar {
+			margin-top: 30px;
+			font-size: 12pt;
+			width: 430px;
+			height: 30px;
+			outline: #00FF00 solid thin;
+			outline-color: purple;
+		}
+		.button {
+		    background-color: #5E0B82;
+		    border: none;
+		    color: white;
+		    padding: 12px 28px;
+		    text-align: center;
+		    text-decoration: none;
+		    display: inline-block;
+		    font-size: 16px;
+		    margin: 4px 2px;
+		    cursor: pointer;
+		    margin-top: 25px; 
+		}
+
+		.wordCloudButton {
+			background-color: white;
+		    border: none;
+		    text-align: center;
+		    text-decoration: none;
+		}
+
+		.dropdown-button {
+			margin-top: 10px;
+			font-size: 12pt;
+			width: 430px;
+			height: 30px;
+			outline: #00FF00 solid thin;
+			outline-color: purple;
+		}
+
+		ul {
+			padding: 0;
+		}
+
+		h1 {
+			display: block;
+			text-align: center;
+			font-size: 40pt;
+			margin-top: 5%;
+		}
+		.searchbar {
+			margin-top: 30px;
+			font-size: 12pt;
+			width: 430px;
+			height: 30px;
+			outline: #00FF00 solid thin;
+			outline-color: purple;
+		}
+		/*.button {
+		    background-color: #5E0B82;
+		    border: none;
+		    color: white;
+		    padding: 12px 28px;
+		    text-align: center;
+		    text-decoration: none;
+		    display: inline-block;
+		    font-size: 16px;
+		    margin: 4px 2px;
+		    cursor: pointer;
+		    margin-top: 25px;
+		    margin-right: 5px;
+		}*/
+		img {
+			width: 50%;
+			height: 50%;
+		}
+		.firstLevel {
+			font-size: 10pt;
+			color: blue;
+		}
+		.secondLevel {
+			font-size: 16pt;
+			color: green;
+		}
+		.thirdLevel {
+			font-size: 20pt;
+			color: purple;
+		}
+		.fourthLevel {
+			font-size: 25pt;
+			color: red;
+		}
+		.fifthLevel {
+			font-size: 30pt;
+			color: black;
+		}
+		.sixthLevel {
+			font-size: 34pt;
+			color: maroon;
+		}
+		.word {
+			margin: 0 auto;
+			width: 90%;
+			outline-color: purple;
+			background-color: white;
+		}
+		a {
+			text-decoration: none;
+		}
+		#artistSearchPage {
+			display: block;
+		}
+		#wordCloudPage {
+			display: none;
+		}
+	</style>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+	<script type="text/javascript">
+		var searchBarString = "";
+		var array = [];
+		var artistName = "";
+
+		// ------- INSERT THIS CODE
+		var httpRequest;
+		var requestedData;
+		var urlid;
+		var searchItem = 0;
+
+		// ---------
+
+		var wordToSongMap = new Object();
+		function artistSuggestions() {
+			if (document.getElementById('search-bar').value.length >= 3) {
+			    var xmlhttp = new XMLHttpRequest();
+			    var urlStart = 'https://api.spotify.com/v1/search?q=';
+			    var urlEnd = '*&type=artist';
+			    var textTyped = document.getElementById('search-bar').value;
+
+			    var urlToBeEntered = urlStart.concat(textTyped, urlEnd);
+			    xmlhttp.open('GET', urlToBeEntered, false);
+			    xmlhttp.send();
+			    var myjson = JSON.parse(xmlhttp.responseText);
+			    var artistNamesAndIds = "";
+			    var ul = document.getElementById("dropdown");
+
+			    while (ul.firstChild) {
+			    	ul.removeChild(ul.firstChild);
+			    }
+			    for (var i in myjson.artists.items) {
+			        artistNamesAndIds = artistNamesAndIds + myjson.artists.items[i].name + " " + myjson.artists.items[i].id + "\n";
+			        var li = document.createElement("li");
+			        var button = document.createElement("button");
+			        button.setAttribute("id", myjson.artists.items[i].name + "-button");
+			        button.innerHTML = myjson.artists.items[i].name; 
+
+			        // ------------ INSERT THIS
+
+			        getSearchQuery(myjson.artists.item[i].name);
+
+			        // ---------------
+
+
+			        searchBarString = myjson.artists.items[i].name; 
+			        button.setAttribute("onclick", "setArtistInSearchBar('" + myjson.artists.items[i].name + "')");
+			        button.setAttribute("class", "dropdown-button"); 
+  					li.appendChild(button);
+  					ul.appendChild(li);
+			    }
+			   // alert(artistNamesAndIds); 
+			} else {
+				var ul = document.getElementById("dropdown");
+
+			    while (ul.firstChild) {
+			    	ul.removeChild(ul.firstChild);
+			    }
+			}
+
+			document.getElementById("submit-button").disabled = true;
+		}
+
+		// -------- INSERT CODE
+		function getSearchQuery(searchItem) {
+
+			console.log("getSearchQuery: " + searchItem);
+			httpRequest = new XMLHttpRequest();
+			if(!httpRequest) {
+				console.log("request failed");
+				return false;
+			}
+
+			httpRequest.onreadystatechange = displayContents;
+			httpRequest.open('GET', 'https://www.googleapis.com/customsearch/v1?q=' + searchItem + '&cx=005483833404371296958:6au7lags92i&num=10&searchType=image&key=AIzaSyAoVPF3SSCABAlSjtY9WLvZ9blIpNnOoY8', true);
+    		httpRequest.send();
+		}
+
+		function displayContents() {
+	        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+	            if (httpRequest.status === 200) {
+	                requestedData = JSON.parse(httpRequest.responseText);
+	                parseData();
+	            } else {
+	                console.log("There was a problem with the request"); 
+	            }
+	        } 
+		};
+
+		function parseData() {
+	        urlid = requestedData["items"][0]["link"];
+		    embedResult(urlid);
+		};
+
+		function embedResult(urlid) {
+			//make this urlid as the source value for the image
+		}
+
+		// ---------
+
+		function setArtistInSearchBar(name) {
+			console.log(name);
+			document.getElementById("search-bar").value = name;
+			var ul = document.getElementById("dropdown");
+
+			while (ul.firstChild) {
+			  	ul.removeChild(ul.firstChild);
+			}
+
+			document.getElementById("submit-button").disabled = false;
+		}
+
+		function generateTracks() {
+			artistName = document.getElementById("search-bar").value;
+			var artistNameForURL = artistName.replace(" ", "+");
+			console.log(artistNameForURL);
+			var urlStart = "https://api.spotify.com/v1/search?q=";
+			var urlEnd = "&type=artist";
+			var url = urlStart + artistNameForURL + urlEnd;
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open('GET', url, false);
+			xmlhttp.send();
+			var myjson = JSON.parse(xmlhttp.responseText);
+			var artistid = myjson.artists.items[0].id;
+			console.log(artistid); 
+			searchAlbums(artistid, artistName);
+
+			var max = 0;
+			if (array.length <= 10) {
+				max = array.length;
+			} else {
+				max = 10;
+			}
+
+			//console.
+
+			var songLyricsMap = new Object();
+
+			var count = 0;
+			for (var i=0; i<max; i++) {
+				console.log("top of for:::: i = " + i); 
+				jQuery.ajax({
+				    type: "POST",
+				    url: 'lyrics.php',
+				    dataType: 'json',
+				    data: {functionname: 'printLyrics', arguments: [artistName, array[i]]},
+
+				    success: function (obj, textstatus) {
+
+				    	console.log("in success:::: count = " + count);  
+				                  songLyricsMap[obj.track] = obj.lyrics;  
+
+				                if (count == max-1) {
+				                	//console.log("in if and count=" + count + " and max=" + max);
+				                  	var allLyrics = "";
+
+									//console.log("songLyricsMap: \n" + songLyricsMap);
+
+									for (var key in songLyricsMap) {
+										allLyrics += songLyricsMap[key];
+									}
+
+									//console.log("allLyrics: \n" + allLyrics);
+
+
+
+									var wordsArr = generateTop250(allLyrics); 
+
+
+
+									var lyricsFrequencyMap = new Object();
+
+
+									for (var j=0; j<wordsArr.length; j++) {
+										wordToSongMap[wordsArr[j][0]] = obj.track + ": " + wordsArr[j][1];
+									}
+
+									for (var j=0; j<wordsArr.length; j++) {
+										lyricsFrequencyMap[wordsArr[j][0]] = wordsArr[j][1];  
+									}
+									console.log(lyricsFrequencyMap); 
+
+									generateWordCloud(lyricsFrequencyMap, artistName);
+									//console.log(wordsArr); 
+								} else {
+									//console.log("in else and count=" + count + " and max=" + max); 
+								} 
+
+								count++;
+
+				            },
+
+				    error: function(textstatus) {
+				            	console.log(textstatus);
+				            	if (textstatus.responsetext === "hellooooooo↵↵↵↵Lyrics.com↵↵↵↵LyricsMode↵↵↵↵Golyr↵↵↵↵AZ Lyrics↵↵↵↵Lyrics.com↵↵↵↵Lyrics.com") {
+				            		console.log("^^^ invalid lyrics ^^^"); 
+				            	}
+				            }
+
+				});
+			}
+
+			
+		}
+
+		function searchAlbums(artistid, artistName) {
+			//console.log("search albums");
+		    var xmlhttp = new XMLHttpRequest();
+		    var urlStart = 'https://api.spotify.com/v1/artists/';
+		    var urlEnd = '/albums?album_type=single,album&market=US&limit=50';
+		    var urlToBeEntered = urlStart.concat(artistid, urlEnd);
+		    //xmlhttp.open('GET', 'https://api.spotify.com/v1/search?q=taylor*&type=artist', false);
+		    xmlhttp.open('GET', urlToBeEntered, false);
+		    xmlhttp.send();
+		    //console.log(xmlhttp.responseText); 
+		    var myjson = JSON.parse(xmlhttp.responseText);
+		    for (var i in myjson.items) {
+		    	//console.log(myjson.items[i].id); 
+		    	searchTracks(myjson.items[i].id, artistName);
+		    }
+		    //console.log()
+		    //alert(xmlhttp.responseText);
+		}
+
+		function searchTracks(albumid, artistName) {
+		    var xmlhttp = new XMLHttpRequest();
+		    var urlStart = 'https://api.spotify.com/v1/albums/';
+		    var urlEnd = '/tracks?limit=50';
+		    //var textTyped = document.getElementById('albumID').value;
+		    var urlToBeEntered = urlStart.concat(albumid, urlEnd);
+		    //xmlhttp.open('GET', 'https://api.spotify.com/v1/search?q=taylor*&type=artist', false);
+		    xmlhttp.open('GET', urlToBeEntered, false);
+		    xmlhttp.send();
+
+		    var myjson = JSON.parse(xmlhttp.responseText);
+		    
+		    for (var i in myjson.items) {
+		    	//console.log(myjson.items[i].name); 
+		    	array.push(myjson.items[i].name);   
+		    	//$.post('lyrics.php', {track: myjson.items[i].name, artist: artistName}); 
+		    	// var xmlhttp2 = new XMLHttpRequest();
+		     //    xmlhttp2.onreadystatechange = function() {
+		     //        if (this.readyState == 4 && this.status == 200) {
+		     //        	console.log("we did it :)")
+		     //        	var lyrics = "<?php Print($lyricsString); ?>";
+		     //        	console.log(lyrics);
+		     //           // document.getElementById("txtHint").innerHTML = this.responseText;
+		     //        }
+		     //    };
+		     //    xmlhttp2.open("GET", "lyrics.php?a=" + artistName + "&t=" + myjson.items[i].name, true);
+		     //    xmlhttp2.send(); 
+		     	
+		    }
+
+		    //alert(xmlhttp.responseText);
+		}
+
+		function generateTop250(str) { 
+
+		    //alert("hello world"); 
+		    //var str = "Do you ever feel like a plastic bag Drifting through the wind Wanting to start again Do you ever feel so paper thin Like a house of cards One blow from caving in Do you ever feel already buried deep Six feet under screams. But no one seems to hear a thing Do you know that there's still a chance for you Cause there's a spark in you You just gotta ignite the light And let it shine Just own the night ;Like the fourth of July Cause baby you're a firework and";
+
+		   // var str = "a the good good, bad; the can't the a. book and the book chair good";
+		    var n = str.toLowerCase() ;
+		    var n1 = n.replace(/,/g, "");
+		    var n2  = n1.replace(/;/g, "");
+		    var n3 = n2.replace(/\./g,"");
+		    var n4 =  n3.replace(/'/g, "");
+		    var n5 = n4.replace(/ the /g, " ");
+		    var n6 = n5.replace(/ a /g, " ");
+		    var n7 = n6.replace(/ an /g, " ");
+		    var n8 = n7.replace(/ of /g, " ");
+		    var n9 = n8.replace(/ to /g, " ");
+		    var n10 = n9.replace(/ in /g, " ");
+		    var n11 = n10.replace(/ so /g, " ");
+		    var n12 = n11.replace(/ youre /g, " ");
+		    var n13 = n12.replace(/ cant /g, " ");
+		    var n14 = n13.replace(/ dont /g, " ");
+		    var n15 = n14.replace(/ isnt /g, " ");
+		    var n16 = n15.replace(/ aint /g, " ");
+		    var n17 = n16.replace(/(\r\n|\n|\r)/gm, " ");
+
+		    //console.log("str: \n" + n17);
+		   // console.log("after removing the commas " + n11);
+		    var res = n17.split(" ");
+		    var a = mapWordsWithFrequency(res);
+		   // console.log("string before sorting: " + str);
+		    var numbers = a[1];
+			var arr = sortArray(a); //sorts in increasing order of the number frequencies
+			//console.log("sorted array" + arr);
+			console.log("sorted arr: \n" + arr); 
+
+			var returnarr = [];
+			var max = 250;
+			if (arr.length <= 250) {
+				max = arr.length;
+			} else {
+				max = 250;
+			}
+
+			for (var i=0; i<max; i++) {
+				returnarr[i] = [arr[i][0], arr[i][1]]; 
+			}
+
+			return returnarr;  
+		}
+
+		function sortArray(arr) {
+		 	arr.sort(function(a,b) {
+		 		return b[1] - a[1];
+			 });
+		    
+		    return arr;
+		}
+
+		function mapWordsWithFrequency(arr) {
+			
+		    var a = [], b = [], prev;
+		    var sortedArray = [[],[]];
+		    
+
+		    arr.sort();
+		    for ( var i = 0; i < arr.length; i++ ) {
+		        if ( arr[i] !== prev ) {
+		            a.push(arr[i]);
+		            b.push(1);
+		        } else {
+		            b[b.length-1]++;
+		        }
+		        prev = arr[i];
+		    }
+
+		    for(var i = 0 ; i < a.length ; i++){
+		    	sortedArray[i] = [a[i], b[i]];
+
+		    }
+
+		    //console.log("mapWordsWithFrequency: \n" + sortedArray); 
+		    return sortedArray;
+		}
+
+		function generateWordCloud(wordMap, artistName) {
+			document.getElementById('artistSearchPage').style.display="none";
+			document.getElementById('wordCloudPage').style.display="block";
+			document.getElementById('artistName').innerHTML = artistName; 
+			console.log("entered function");
+			var wordColors = ["green", "red", "purple", "orange", "blue"];
+			//var wordMap = new Object();
+			
+			var cloud = document.getElementById('cloud');
+			var size = Object.keys(wordMap).length;
+			console.log(size);
+			for(var key in wordMap) {
+				console.log(key);
+				if(key < 'e') {
+					//cloud.innerHTML += "<button id=\'" + key + "\' class='wordCloudButton'><span class='firstLevel'>" + key + " " + "</span></button>"; 
+					//document.getElementById(key).setAttribute("onclick", "navigateToSongListPage('" + key + "')"); 
+					// var button = document.createElement("button");
+					// button.setAttribute("id", key + "-button");
+			  //       button.setAttribute("onclick", "navigateToSongListPage('" + key + "')");
+			  //       button.setAttribute("class", "wordCloudButton" );
+			  //       button.setAttribute("class")
+		
+				} else if (key < 'j') {
+					cloud.innerHTML += "<button class='wordCloudButton'><span class='secondLevel'>" + key + " " + "</span></button>";
+				} else if (key < 'n') {
+					cloud.innerHTML += "<button class='wordCloudButton'><span class='thirdLevel'>" + key + " " + "</span></button>";
+				} else if (key < 'r') {
+					cloud.innerHTML += "<button class='wordCloudButton'><span class='fourthLevel'>" + key + " " + "</span></button>";
+				} else if (key < 'w'){
+					cloud.innerHTML += "<button class='wordCloudButton'><span class='fifthLevel'>" + key + " " + "</span></button>";
+				} else {
+					cloud.innerHTML += "<button class='wordCloudButton'><span class='sixthLevel'>" + key + " " + "</span></button>";    
+				} 
+			}
+		}
+
+		function navigateToSongListPage(word) {
+			alert(word + " is pressed"); 
+		}
+
+	</script>
+</head>
+
+<body>
+	<div id="artistSearchPage"> 
+		<h1 class="header1"> Word Cloud </h1>
+		<input class="searchbar" type="text" name="search" id="search-bar" placeholder="Search for an artist.." oninput="artistSuggestions()"> 
+		<br>
+		<ul id="dropdown" style="list-style-type:none">
+		</ul>
+		<button class="button" id="submit-button" onclick="generateTracks()" disabled>Search</button>
+	</div>
+	<div id="wordCloudPage">
+		<h1 id="artistName"></h1>
+		<div id="cloud" class="word"></div>
+		<input class="searchbar" type="text" name="search" placeholder="Search for an artist.."> <br>
+		<button id="left" class="button">Search</button>
+		<button class="button">Add</button>
+		<button class="button">Share</button> 
+	</div>
+</body>
+
+
+</html>
