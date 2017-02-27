@@ -1,0 +1,178 @@
+<!doctype html>
+
+<html>
+
+<head>
+	<title>Search Page</title>
+	<style>
+		body {
+			background-color: #BDBDBD;
+			text-align: center;
+			color: black;
+		}
+		.header1 {
+			color: black;
+			font-size: 50pt;
+			display: block;
+			width: 100%;
+			margin: 0 auto;
+			margin-top: 12%;
+		}
+		.searchbar {
+			margin-top: 30px;
+			font-size: 12pt;
+			width: 430px;
+			height: 30px;
+			outline: #00FF00 solid thin;
+			outline-color: purple;
+		}
+		.button {
+		    background-color: #5E0B82;
+		    border: none;
+		    color: white;
+		    padding: 12px 28px;
+		    text-align: center;
+		    text-decoration: none;
+		    display: inline-block;
+		    font-size: 16px;
+		    margin: 4px 2px;
+		    cursor: pointer;
+		    margin-top: 25px; 
+		}
+
+		.dropdown-button {
+			margin-top: 10px;
+			font-size: 12pt;
+			width: 430px;
+			height: 30px;
+			outline: #00FF00 solid thin;
+			outline-color: purple;
+		}
+
+		ul {
+			padding: 0;
+		}
+	</style>
+
+	<script type="text/javascript">
+		var searchBarString = "";
+		function artistSuggestions() {
+			if (document.getElementById('search-bar').value.length >= 3) {
+			    var xmlhttp = new XMLHttpRequest();
+			    var urlStart = 'https://api.spotify.com/v1/search?q=';
+			    var urlEnd = '*&type=artist';
+			    var textTyped = document.getElementById('search-bar').value;
+			    var urlToBeEntered = urlStart.concat(textTyped, urlEnd);
+			    xmlhttp.open('GET', urlToBeEntered, false);
+			    xmlhttp.send();
+			    var myjson = JSON.parse(xmlhttp.responseText);
+			    var artistNamesAndIds = "";
+			    var ul = document.getElementById("dropdown");
+
+			    while (ul.firstChild) {
+			    	ul.removeChild(ul.firstChild);
+			    }
+			    for (var i in myjson.artists.items) {
+			        artistNamesAndIds = artistNamesAndIds + myjson.artists.items[i].name + " " + myjson.artists.items[i].id + "\n";
+			        var li = document.createElement("li");
+			        var button = document.createElement("button");
+			        button.setAttribute("id", myjson.artists.items[i].name + "-button");
+			        button.innerHTML = myjson.artists.items[i].name; 
+			        searchBarString = myjson.artists.items[i].name; 
+			        button.setAttribute("onclick", "setArtistInSearchBar('" + myjson.artists.items[i].name + "')");
+			        button.setAttribute("class", "dropdown-button"); 
+  					li.appendChild(button);
+  					ul.appendChild(li);
+			    }
+			   // alert(artistNamesAndIds); 
+			} else {
+				var ul = document.getElementById("dropdown");
+
+			    while (ul.firstChild) {
+			    	ul.removeChild(ul.firstChild);
+			    }
+			}
+
+			document.getElementById("submit-button").disabled = true;
+		}
+
+		function setArtistInSearchBar(name) {
+			console.log(name);
+			document.getElementById("search-bar").value = name;
+			var ul = document.getElementById("dropdown");
+
+			while (ul.firstChild) {
+			  	ul.removeChild(ul.firstChild);
+			}
+
+			document.getElementById("submit-button").disabled = false;
+		}
+
+		function generateTracks() {
+			var artistName = document.getElementById("search-bar").value;
+			var artistNameForURL = artistName.replace(" ", "+");
+			console.log(artistNameForURL);
+			var urlStart = "https://api.spotify.com/v1/search?q=";
+			var urlEnd = "&type=artist";
+			var url = urlStart + artistNameForURL + urlEnd;
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open('GET', url, false);
+			xmlhttp.send();
+			var myjson = JSON.parse(xmlhttp.responseText);
+			var artistid = myjson.artists.items[0].id;
+			console.log(artistid); 
+			searchAlbums(artistid, artistName);
+		}
+
+		function searchAlbums(artistid, artistName) {
+			console.log("search albums");
+		    var xmlhttp = new XMLHttpRequest();
+		    var urlStart = 'https://api.spotify.com/v1/artists/';
+		    var urlEnd = '/albums?album_type=single,album&market=US&limit=50';
+		    var urlToBeEntered = urlStart.concat(artistid, urlEnd);
+		    //xmlhttp.open('GET', 'https://api.spotify.com/v1/search?q=taylor*&type=artist', false);
+		    xmlhttp.open('GET', urlToBeEntered, false);
+		    xmlhttp.send();
+		    //console.log(xmlhttp.responseText); 
+		    var myjson = JSON.parse(xmlhttp.responseText);
+		    for (var i in myjson.items) {
+		    	//console.log(myjson.items[i].id); 
+		    	searchTracks(myjson.items[i].id, artistName);
+		    }
+		    //console.log()
+		    //alert(xmlhttp.responseText);
+		}
+
+		function searchTracks(albumid, artistName) {
+		    var xmlhttp = new XMLHttpRequest();
+		    var urlStart = 'https://api.spotify.com/v1/albums/';
+		    var urlEnd = '/tracks?limit=50';
+		    //var textTyped = document.getElementById('albumID').value;
+		    var urlToBeEntered = urlStart.concat(albumid, urlEnd);
+		    //xmlhttp.open('GET', 'https://api.spotify.com/v1/search?q=taylor*&type=artist', false);
+		    xmlhttp.open('GET', urlToBeEntered, false);
+		    xmlhttp.send();
+
+		    var myjson = JSON.parse(xmlhttp.responseText);
+		    var array = [];
+		    for (var i in myjson.items) {
+		    	console.log(myjson.items[i].name); 
+		    	array.push(myjson.items[i].name); 
+		    }
+
+		    //alert(xmlhttp.responseText);
+		}
+
+	</script>
+</head>
+
+<body>
+	<h1 class="header1"> Word Cloud </h1>
+	<input class="searchbar" type="text" name="search" id="search-bar" placeholder="Search for an artist.." oninput="artistSuggestions()"> <br>
+	<ul id="dropdown" style="list-style-type:none">
+	</ul>
+	<button class="button" id="submit-button" onclick="generateTracks()" disabled>Search</button>
+</body>
+
+
+</html>
